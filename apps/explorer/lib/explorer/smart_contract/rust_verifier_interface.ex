@@ -1,5 +1,6 @@
 defmodule Explorer.SmartContract.RustVerifierInterface do
   alias HTTPoison.Response
+  require Logger
 
   def verify_multi_part(
         %{
@@ -49,14 +50,6 @@ defmodule Explorer.SmartContract.RustVerifierInterface do
 
   def get_versions_list() do
     http_get_request(versions_list_url())
-  end
-
-  defp debug(value, key) do
-    require Logger
-    Logger.configure(truncate: :infinity)
-    Logger.info(key)
-    Logger.info(Kernel.inspect(value, limit: :infinity, printable_limit: :infinity))
-    value
   end
 
   def proccess_verifier_response(body) when is_binary(body) do
