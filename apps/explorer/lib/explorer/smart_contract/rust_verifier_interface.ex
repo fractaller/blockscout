@@ -2,6 +2,8 @@ defmodule Explorer.SmartContract.RustVerifierInterface do
   alias HTTPoison.Response
   require Logger
 
+  @post_timeout :infinity
+
   def verify_multi_part(
         %{
           "creation_bytecode" => _,
@@ -19,7 +21,7 @@ defmodule Explorer.SmartContract.RustVerifierInterface do
   def http_post_request(url, body) do
     headers = [{"Content-Type", "application/json"}]
 
-    case HTTPoison.post(url, Jason.encode!(body), headers) do
+    case HTTPoison.post(url, Jason.encode!(body), headers, recv_timeout: @post_timeout) do
       {:ok, %Response{body: body, status_code: 200}} ->
         proccess_verifier_response(body)
 
@@ -27,7 +29,12 @@ defmodule Explorer.SmartContract.RustVerifierInterface do
         proccess_verifier_response(body)
 
       {:error, error} ->
-        Logger.debug("Error while sending request to verification microservice", error)
+        Logger.error(fn ->
+          [
+            "Error while sending request to verification microservice url: #{url}, body: #{inspect(body, limit: :infinity, printable_limit: :infinity)}: ",
+            inspect(error, limit: :infinity, printable_limit: :infinity)
+          ]
+        end)
 
         {:error, "Error while sending request to verification microservice"}
     end
@@ -42,7 +49,12 @@ defmodule Explorer.SmartContract.RustVerifierInterface do
         {:error, body}
 
       {:error, error} ->
-        Logger.debug("Error while sending request to verification microservice", error)
+        Logger.error(fn ->
+          [
+            "Error while sending request to verification microservice url: #{url}: ",
+            inspect(error, limit: :infinity, printable_limit: :infinity)
+          ]
+        end)
 
         {:error, "Error while sending request to verification microservice"}
     end

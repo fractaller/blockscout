@@ -112,12 +112,12 @@ defmodule Explorer.SmartContract.Solidity.Verifier do
     end
   end
 
-  def evaluate_authenticity_via_standard_json_input_inner(true, address_hash, parasm, json_input) do
+  def evaluate_authenticity_via_standard_json_input_inner(true, address_hash, params, json_input) do
     # wait update from rust team with modifying json verification end point
     verify(address_hash, params, json_input)
   end
 
-  def evaluate_authenticity_via_standard_json_input_inner(false, address_hash, parasm, json_input) do
+  def evaluate_authenticity_via_standard_json_input_inner(false, address_hash, params, json_input) do
     verify(address_hash, params, json_input)
   end
 
