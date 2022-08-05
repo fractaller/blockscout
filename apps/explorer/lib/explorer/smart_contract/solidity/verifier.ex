@@ -37,7 +37,46 @@ defmodule Explorer.SmartContract.Solidity.Verifier do
   end
 
   def evaluate_authenticity_inner(true, address_hash, params) do
-    RustVerifierInterface.verify_multi_part()
+    deployed_bytecode = Chain.smart_contract_bytecode(address_hash)
+
+    creation_tx_input =
+      case Chain.smart_contract_creation_tx_bytecode(address_hash) do
+        %{init: init, created_contract_code: _created_contract_code} ->
+          init
+
+        _ ->
+          ""
+      end
+
+    params
+    |> Map.put("creation_bytecode", creation_tx_input)
+    |> Map.put("deployed_bytecode", deployed_bytecode)
+    |> Map.put("sources", %{"#{params["name"]}.sol" => params["contract_source_code"]})
+    |> Map.put("contract_libraries", params["external_libraries"])
+    |> Map.put("optimization_runs", prepare_optimization_runs(params["optimization"], params["optimization_runs"]))
+    |> debug("map")
+    |> RustVerifierInterface.verify_multi_part()
+    |> debug("result verifier")
+  end
+
+  defp prepare_optimization_runs(false_, _) when false_ in [false, "false"], do: nil
+
+  defp prepare_optimization_runs(true_, runs) when true_ in [true, "true"] do
+    case Integer.parse(runs) do
+      {runs_integer, ""} ->
+        runs_integer
+
+      _ ->
+        nil
+    end
+  end
+
+  defp debug(value, key) do
+    require Logger
+    Logger.configure(truncate: :infinity)
+    Logger.info(key)
+    Logger.info(Kernel.inspect(value, limit: :infinity, printable_limit: :infinity))
+    value
   end
 
   def evaluate_authenticity_inner(false, address_hash, params) do
