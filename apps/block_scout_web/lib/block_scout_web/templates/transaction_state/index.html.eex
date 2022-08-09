@@ -1,0 +1,135 @@
+<section class="container">
+  <%= render BlockScoutWeb.TransactionView, "overview.html", assigns %>
+  <div class="card">
+    <%= render BlockScoutWeb.TransactionView, "_tabs.html", assigns %>
+    <div class="card-body" data-async-load data-async-listing="<%= @current_path %>">
+      <h2 class="card-title list-title-description"><%= gettext "State changes" %></h2>
+      <%= if BlockScoutWeb.TransactionView.transaction_status(@transaction) == :success do %>
+        <div class="addresses-table-container">
+          <div class="stakes-table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th class="stakes-table-th">
+                    <div class="stakes-table-th-content">&nbsp;</div>
+                  </th>
+                  <th class="stakes-table-th">
+                    <div class="stakes-table-th-content">Address</div>
+                  </th>
+                  <th class="stakes-table-th">
+                    <div class="stakes-table-th-content">Balance before</div>
+                  </th>
+                  <th class="stakes-table-th">
+                    <div class="stakes-table-th-content">Balance after</div>
+                  </th>
+                  <th class="stakes-table-th">
+                    <div class="stakes-table-th-content">Change</div>
+                  </th>
+                </tr>
+              </thead>
+              <% block = @transaction.block %>
+              <% {_, fee} = @transaction
+                  |> Chain.fee(:wei)
+                  %>
+              <% fee = %Chain.Wei{value: fee} %>
+              <% from = @transaction.from_address_hash %>
+              <% to = @transaction.to_address_hash %>
+              <% miner = block.miner_hash %>
+              <% block_number = @transaction.block_number %>
+              <% from_before = case Chain.get_coin_balance(from, block_number - 1) do 
+                  %{value: before} when not is_nil(before) -> before
+                  _ -> %Chain.Wei{value: Decimal.new(0)}
+                  end %>
+              <% to_before = case Chain.get_coin_balance(to, block_number - 1) do 
+                  %{value: before} when not is_nil(before) -> before
+                  _ -> %Chain.Wei{value: Decimal.new(0)}
+                  end %>
+              <% miner_before = case Chain.get_coin_balance(miner, block_number - 1) do 
+                  %{value: before} when not is_nil(before) -> before
+                  _ -> %Chain.Wei{value: Decimal.new(0)}
+                  end %>
+              <% IO.inspect(Chain.get_coin_balance(from, block_number - 1), label: "from_before") %>
+              <% from_diff = Chain.Wei.sum(@transaction.value, fee) %>
+              <% to_diff = @transaction.value %>
+              <% miner_diff = fee %>
+              <% from_after = Chain.Wei.sub(from_before, from_diff) %>
+              <% to_after = Chain.Wei.sum(to_before, to_diff) %>
+              <% miner_after = Chain.Wei.sum(miner_before, miner_diff) %>
+              <tbody>
+                <tr>
+                  <td class="stakes-td"></td>
+                  <td class="stakes-td">
+                    <%= link(
+                        from,
+                        to: address_path(@conn, :show, from)
+                    ) %>
+                  </td>
+                  <td class="stakes-td">
+                    <%= format_wei_value(from_before, :ether) %>
+                  </td>
+                  <td class="stakes-td">
+                    <%= format_wei_value(from_after, :ether) %>
+                  </td>
+                  <td class="stakes-td text-danger">
+                    <%= format_wei_value(from_diff, :ether) %>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="stakes-td"></td>
+                  <td class="stakes-td">
+                    <%= link(
+                        to,
+                        to: address_path(@conn, :show, to)
+                    ) %>
+                  </td>
+                  <td class="stakes-td">
+                    <%= format_wei_value(to_before, :ether) %>
+                  </td>
+                  <td class="stakes-td">
+                    <%= format_wei_value(to_after, :ether) %>
+                  </td>
+                  <td class="stakes-td text-success">
+                    <%= format_wei_value(to_diff, :ether) %>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="stakes-td">
+                    <dt class="col-sm-3 col-lg-2 text-muted">
+                      <%= render BlockScoutWeb.CommonComponentsView, "_i_tooltip_2.html",
+                    text: gettext("A block producer who successfully included the block onto the blockchain.") %>
+                      <%= gettext("Miner") %>
+                    </dt>
+                  </td>
+                  <td class="stakes-td">
+                    <%= link(
+                        miner,
+                        to: address_path(@conn, :show, miner)
+                    ) %>
+                  </td>
+                  <td class="stakes-td">
+                    <%= format_wei_value(miner_before, :ether) %>
+                  </td>
+                  <td class="stakes-td">
+                    <%= format_wei_value(miner_after, :ether) %>
+                  </td>
+                  <td class="stakes-td text-success">
+                    <%= format_wei_value(miner_diff, :ether) %>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% else %>
+        <div data-empty-response-message style="display: none;">
+          <div class="tile tile-muted text-center" data-selector="empty-logs-list">
+            <%= gettext "The changes from this transaction have not yet happened since the transaction is still pending." %>
+          </div>
+        </div>
+      <% end %>
+      <button data-error-message class="alert alert-danger col-12 text-left" style="display: none;">
+        <span href="#" class="alert-link"><%= gettext("Something went wrong, click to reload.") %></span>
+      </button>
+    </div>
+  </div>
+</section>
