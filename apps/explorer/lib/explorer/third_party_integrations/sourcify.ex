@@ -4,8 +4,7 @@ defmodule Explorer.ThirdPartyIntegrations.Sourcify do
   """
   use Tesla
 
-  alias Explorer.SmartContract.Helper
-  alias Explorer.SmartContract.RustVerifierInterface
+  alias Explorer.SmartContract.{Helper, RustVerifierInterface}
   alias HTTPoison.{Error, Response}
   alias Tesla.Multipart
 
@@ -61,6 +60,7 @@ defmodule Explorer.ThirdPartyIntegrations.Sourcify do
     http_post_request(verify_url(), multipart_body)
   end
 
+  # sobelow_skip ["Traversal.FileModule"]
   def verify_via_rust_microservice(address_hash_string, files) do
     chain_id = config(__MODULE__, :chain_id)
 

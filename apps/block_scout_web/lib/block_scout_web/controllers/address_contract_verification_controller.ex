@@ -245,6 +245,7 @@ defmodule BlockScoutWeb.AddressContractVerificationController do
     |> Enum.at(0)
   end
 
+  # sobelow_skip ["Traversal.FileModule"]
   defp read_files(plug_uploads) do
     Enum.reduce(plug_uploads, %{}, fn %Plug.Upload{path: path, filename: file_name}, acc ->
       {:ok, file_content} = File.read(path)
