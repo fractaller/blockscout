@@ -41,12 +41,12 @@ defmodule Explorer.SmartContract.Solidity.Publisher do
           "optimization" => _,
           "optimization_runs" => _,
           "sources" => sources
-        } = params
+        } = result_params
       } ->
         %{^file_name => contract_source_code} = sources
 
         prepared_params =
-          params
+          result_params
           |> Map.put("contract_source_code", contract_source_code)
           |> Map.put("external_libraries", contract_libraries)
           |> Map.put("name", contract_name)
@@ -87,7 +87,7 @@ defmodule Explorer.SmartContract.Solidity.Publisher do
          "optimization" => _,
          "optimization_runs" => _,
          "sources" => sources
-       } = params} ->
+       } = result_params} ->
         secondary_sources =
           for {file, source} <- sources,
               file != file_name,
@@ -96,7 +96,7 @@ defmodule Explorer.SmartContract.Solidity.Publisher do
         %{^file_name => contract_source_code} = sources
 
         prepared_params =
-          params
+          result_params
           |> Map.put("contract_source_code", contract_source_code)
           |> Map.put("external_libraries", contract_libraries)
           |> Map.put("name", contract_name)
@@ -144,7 +144,7 @@ defmodule Explorer.SmartContract.Solidity.Publisher do
          "optimization" => _,
          "optimization_runs" => _,
          "sources" => sources
-       } = params} ->
+       } = result_params} ->
         secondary_sources =
           for {file, source} <- sources,
               file != file_name,
@@ -153,7 +153,7 @@ defmodule Explorer.SmartContract.Solidity.Publisher do
         %{^file_name => contract_source_code} = sources
 
         prepared_params =
-          params
+          result_params
           |> Map.put("contract_source_code", contract_source_code)
           |> Map.put("external_libraries", contract_libraries)
           |> Map.put("name", contract_name)

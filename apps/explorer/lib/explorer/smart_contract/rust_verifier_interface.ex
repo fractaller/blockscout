@@ -26,7 +26,7 @@ defmodule Explorer.SmartContract.RustVerifierInterface do
           "input" => _
         } = body
       ) do
-    http_post_request(multiple_files_verification_url(), body)
+    http_post_request(standard_json_input_verification_url(), body)
   end
 
   def http_post_request(url, body) do

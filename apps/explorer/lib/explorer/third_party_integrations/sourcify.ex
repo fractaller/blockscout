@@ -180,6 +180,9 @@ defmodule Explorer.ThirdPartyIntegrations.Sourcify do
       %{"status" => "0"} ->
         {:ok, body_json}
 
+      %{"status" => "1", "message" => message} ->
+        {:error, message}
+
       %{"result" => [%{"status" => unknown_status}]} ->
         {:error, unknown_status}
 
