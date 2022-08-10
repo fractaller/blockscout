@@ -2,7 +2,7 @@
   <%= render BlockScoutWeb.TransactionView, "overview.html", assigns %>
   <div class="card">
     <%= render BlockScoutWeb.TransactionView, "_tabs.html", assigns %>
-    <div class="card-body" data-async-load data-async-listing="<%= @current_path %>">
+    <div class="card-body">
       <h2 class="card-title list-title-description"><%= gettext "State changes" %></h2>
       <%= if BlockScoutWeb.TransactionView.transaction_status(@transaction) == :success do %>
         <div class="addresses-table-container">
@@ -121,10 +121,8 @@
           </div>
         </div>
       <% else %>
-        <div data-empty-response-message style="display: none;">
-          <div class="tile tile-muted text-center" data-selector="empty-logs-list">
-            <%= gettext "The changes from this transaction have not yet happened since the transaction is still pending." %>
-          </div>
+        <div class="tile tile-muted text-center">
+          <span><%= gettext "The changes from this transaction have not yet happened since the transaction is still pending." %></span>
         </div>
       <% end %>
       <button data-error-message class="alert alert-danger col-12 text-left" style="display: none;">

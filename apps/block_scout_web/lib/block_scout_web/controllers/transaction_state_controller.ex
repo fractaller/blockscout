@@ -107,7 +107,7 @@ defmodule BlockScoutWeb.TransactionStateController do
         exchange_rate: Market.get_exchange_rate(Explorer.coin()) || Token.null(),
         block_height: Chain.block_height(),
         current_path: Controller.current_full_path(conn),
-        show_token_transfers: false,
+        show_token_transfers: Chain.transaction_has_token_transfers?(transaction_hash),
         transaction: transaction
       )
     else
