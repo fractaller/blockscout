@@ -28,30 +28,13 @@
                 </tr>
               </thead>
               <% block = @transaction.block %>
-              <% {_, fee} = @transaction
-                  |> Chain.fee(:wei)
-                  %>
-              <% fee = %Chain.Wei{value: fee} %>
               <% from = @transaction.from_address_hash %>
               <% to = @transaction.to_address_hash %>
               <% miner = block.miner_hash %>
-              <% block_number = @transaction.block_number %>
-              <% from_before = case Chain.get_coin_balance(from, block_number - 1) do 
-                  %{value: before} when not is_nil(before) -> before
-                  _ -> %Chain.Wei{value: Decimal.new(0)}
-                  end %>
-              <% to_before = case Chain.get_coin_balance(to, block_number - 1) do 
-                  %{value: before} when not is_nil(before) -> before
-                  _ -> %Chain.Wei{value: Decimal.new(0)}
-                  end %>
-              <% miner_before = case Chain.get_coin_balance(miner, block_number - 1) do 
-                  %{value: before} when not is_nil(before) -> before
-                  _ -> %Chain.Wei{value: Decimal.new(0)}
-                  end %>
-              <% IO.inspect(Chain.get_coin_balance(from, block_number - 1), label: "from_before") %>
-              <% from_diff = Chain.Wei.sum(@transaction.value, fee) %>
-              <% to_diff = @transaction.value %>
-              <% miner_diff = fee %>
+              <% {from_before, to_before, miner_before} = balances_before(@transaction) %>
+              <% from_diff = from_loss(@transaction) %>
+              <% to_diff = to_profit(@transaction) %>
+              <% miner_diff = miner_profit(@transaction) %>
               <% from_after = Chain.Wei.sub(from_before, from_diff) %>
               <% to_after = Chain.Wei.sum(to_before, to_diff) %>
               <% miner_after = Chain.Wei.sum(miner_before, miner_diff) %>
